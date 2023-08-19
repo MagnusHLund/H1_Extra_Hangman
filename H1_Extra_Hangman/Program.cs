@@ -1,15 +1,18 @@
 ﻿using Microsoft.VisualBasic.FileIO;
+using System.Runtime.CompilerServices;
 
 namespace H1_Extra_Hangman
 {
     internal class Program
     {
-        static string WordCache;
+        static string wordCache;
 
         static void Main()
         {
             Controller();
         }
+
+        #region Controllers
 
         static void Controller()
         {
@@ -20,6 +23,8 @@ namespace H1_Extra_Hangman
             string[] lines = File.ReadAllLines(directory);
             Random random = new Random();
 
+            string alreadySaid = "";
+
             // Runs an infinite loop, for repeatablity
             while (true)
             {
@@ -27,77 +32,100 @@ namespace H1_Extra_Hangman
                 string word = lines[random.Next(lines.Length)];
                 char[] charWord = word.ToCharArray();
 
-                WordCache = string.Concat(Enumerable.Repeat("_ ", word.Length));
+                // Set the default value of wordCache to be underscores, same amount as the letters in the word string
+                wordCache = string.Concat(Enumerable.Repeat("_", word.Length));
 
                 // Keeps track of when the game is over
-                int health = 0;
-                bool declineHealth = false;
-                
+                int health = 6;
+
 
                 // Calls the View method before user input, to display the hang man before input has been given
-                View(health, word.Length, charWord, "".ToCharArray());
+                View(health, charWord, "");
+
+                string input = Console.ReadLine();
 
                 // Creates an infinite loop for hangman gameplay
                 while (true)
                 {
-                    declineHealth = false;
-                    char[] input = Console.ReadLine().ToCharArray();
+
+                    Console.Clear();
+                    if(input != null)
+                    {
+                    View(health, charWord, input);
+                    } else
+                    {
+                        View(health, charWord, "");
+                    }
+
+                    if (wordCache == word)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Messages("You won!\nPress enter to try again!");
+                        break;
+                    }
+
+                    input = Console.ReadLine();
 
                     if (input.Length != 1)
                     {
-                        Console.WriteLine("Max 1 character!");
+                        Messages("Max 1 character!");
+                        continue;
+                    }
+                    else if (alreadySaid.Contains(input[0]))
+                    {
+                        Messages("You already said this character!");
                         continue;
                     }
 
-                    //Console.Clear();
-                    View(health, word.Length, charWord, input);
+                        alreadySaid = string.Join(" ", input);
 
-                    foreach (char c in input)
+                    // health declines, if charWord does not contain the user input character
+                    if (!charWord.Contains(input[0]))
                     {
-                        if (!charWord.Contains(c))
-                        {
-                            declineHealth = true;
-
-                        }
+                        health--;
                     }
 
-                    if(declineHealth)
+                    // if health is 0, then game is over and repeats once the player presses enter
+                    if (health == 0)
                     {
-                        health++;
-                        declineHealth = false;
-                    }
-
-                    if (health == 6)
-                    {
+                        Messages("Game over!\nPress enter to try again!");
                         break;
                     }
                 }
             }
         }
 
-        static string Underscores(int length, char[] word, char[] input)
+        static string Underscores(char[] word, string input)
         {
+            char[] wordCacheChar = wordCache.ToCharArray();
 
             for (int i = 0; i < word.Length; i++)
             {
                 if (input.Contains(word[i]))
                 {
-                    Console.WriteLine("yes");
+                    wordCacheChar[i] = word[i];
                 }
             }
 
+            wordCache = string.Join("", wordCacheChar);
 
-
-            return WordCache;
+            return wordCache;
         }
+
+        #endregion
+
+        #region Views
 
         /// <summary>
         /// Creates some hang man ascii art, based on the health parameter
+        /// The View method also passes word and input to another method call, Underscores()
         /// </summary>
         /// <param name="health"></param>
-        static void View(int health, int length, char[] word, char[] input)
+        /// <param name="word"></param>
+        /// <param name="input"></param>
+        static void View(int health, char[] word, string input)
         {
-            if (health == 0)
+            if (health == 6)
             {
                 Console.WriteLine("   +---+");
                 Console.WriteLine("   |   |");
@@ -106,10 +134,10 @@ namespace H1_Extra_Hangman
                 Console.WriteLine("       |");
                 Console.WriteLine("       |");
                 Console.WriteLine("============");
-                Console.WriteLine(Underscores(length, word, input));
+                Console.WriteLine(Underscores(word, input));
                 Console.WriteLine("============");
             }
-            else if (health == 1)
+            else if (health == 5)
             {
                 Console.WriteLine("   +---+");
                 Console.WriteLine("   |   |");
@@ -118,10 +146,10 @@ namespace H1_Extra_Hangman
                 Console.WriteLine("       |");
                 Console.WriteLine("       |");
                 Console.WriteLine("============");
-                Console.WriteLine(Underscores(length, word, input));
+                Console.WriteLine(Underscores(word, input));
                 Console.WriteLine("============");
             }
-            else if (health == 2)
+            else if (health == 4)
             {
                 Console.WriteLine("   +---+");
                 Console.WriteLine("   |   |");
@@ -130,7 +158,7 @@ namespace H1_Extra_Hangman
                 Console.WriteLine("       |");
                 Console.WriteLine("       |");
                 Console.WriteLine("============");
-                Console.WriteLine(Underscores(length, word, input));
+                Console.WriteLine(Underscores(word, input));
                 Console.WriteLine("============");
             }
             else if (health == 3)
@@ -142,10 +170,10 @@ namespace H1_Extra_Hangman
                 Console.WriteLine("       |");
                 Console.WriteLine("       |");
                 Console.WriteLine("============");
-                Console.WriteLine(Underscores(length, word, input));
+                Console.WriteLine(Underscores(word, input));
                 Console.WriteLine("============");
             }
-            else if (health == 4)
+            else if (health == 2)
             {
                 Console.WriteLine("   +---+");
                 Console.WriteLine("   |   |");
@@ -154,11 +182,11 @@ namespace H1_Extra_Hangman
                 Console.WriteLine("       |");
                 Console.WriteLine("       |");
                 Console.WriteLine("============");
-                Console.WriteLine(Underscores(length, word, input));
+                Console.WriteLine(Underscores(word, input));
                 Console.WriteLine("============");
 
             }
-            else if (health == 5)
+            else if (health == 1)
             {
                 Console.WriteLine("   +---+");
                 Console.WriteLine("   |   |");
@@ -167,7 +195,7 @@ namespace H1_Extra_Hangman
                 Console.WriteLine("  /    |");
                 Console.WriteLine("       |");
                 Console.WriteLine("============");
-                Console.WriteLine(Underscores(length, word, input));
+                Console.WriteLine(Underscores(word, input));
                 Console.WriteLine("============");
             }
             else
@@ -180,14 +208,23 @@ namespace H1_Extra_Hangman
                 Console.WriteLine(@"  / \  |");
                 Console.WriteLine("       |");
                 Console.WriteLine("============");
-                Console.WriteLine(Underscores(length, word, input));
+                Console.WriteLine(Underscores(word, input));
                 Console.WriteLine("============");
-                Console.WriteLine("  YOU LOST\nPress enter to replay!");
+                Messages("  YOU LOST\nPress enter to replay!");
             }
 
             Console.ResetColor();
-            Thread.Sleep(1000);
         }
+
+        static void Messages(string message)
+        {
+            Console.WriteLine(message);
+            Console.ReadLine();
+        }
+
+        #endregion
+
+        #region Models
 
         static string WordListModel()
         {
@@ -196,5 +233,7 @@ namespace H1_Extra_Hangman
             directory = Path.Combine(directory + @"\WordList.txt");
             return directory;
         }
+
+        #endregion
     }
 }
