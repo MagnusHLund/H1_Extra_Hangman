@@ -1,10 +1,8 @@
-﻿using Microsoft.VisualBasic.FileIO;
-using System.Runtime.CompilerServices;
-
-namespace H1_Extra_Hangman
+﻿namespace H1_Extra_Hangman
 {
     internal class Program
     {
+        // String that contains the characters already guessed
         static string wordCache;
 
         static void Main()
@@ -38,25 +36,18 @@ namespace H1_Extra_Hangman
                 // Keeps track of when the game is over
                 int health = 6;
 
-
-                // Calls the View method before user input, to display the hang man before input has been given
-                View(health, charWord, "");
-
                 string input = Console.ReadLine();
 
                 // Creates an infinite loop for hangman gameplay
                 while (true)
                 {
-
+                    // Clears the console
                     Console.Clear();
-                    if(input != null)
-                    {
-                    View(health, charWord, input);
-                    } else
-                    {
-                        View(health, charWord, "");
-                    }
 
+                    // Calls the view which shows the hangman
+                    View(health, charWord, input);
+
+                    // If the word is the same as the wordCache then the word has been guessed and game is won
                     if (wordCache == word)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
@@ -64,20 +55,24 @@ namespace H1_Extra_Hangman
                         break;
                     }
 
+                    // Input becomes user input
                     input = Console.ReadLine();
 
+                    // Checks if the input is 1, if its not then output an error. If yes, output an error and repeat the loop
                     if (input.Length != 1)
                     {
                         Messages("Max 1 character!");
                         continue;
                     }
+                    // Checks if the string called "alreadySaid" has the character that the user just input. If yes, then output an error and start the loop over
                     else if (alreadySaid.Contains(input[0]))
                     {
                         Messages("You already said this character!");
                         continue;
                     }
 
-                        alreadySaid = string.Join(" ", input);
+                    // Puts the user input into the alreadySaid string
+                    alreadySaid = string.Join(" ", input);
 
                     // health declines, if charWord does not contain the user input character
                     if (!charWord.Contains(input[0]))
@@ -88,27 +83,39 @@ namespace H1_Extra_Hangman
                     // if health is 0, then game is over and repeats once the player presses enter
                     if (health == 0)
                     {
-                        Messages("Game over!\nPress enter to try again!");
+                        Messages($"Game over! word was {word}\nPress enter to try again!");
                         break;
                     }
                 }
             }
         }
-
+        
+        /// <summary>
+        /// This method determines the outputted underscores. 
+        /// If a correct character has been guessed then the same position underscore gets replaced with the letter
+        /// example if the word is book and o has been guessed:
+        /// _oo_
+        /// </summary>
+        /// <param name="word"></param>
+        /// <param name="input"></param>
+        /// <returns></returns>
         static string Underscores(char[] word, string input)
         {
+            // Creates a char array which takes in the wordCache
             char[] wordCacheChar = wordCache.ToCharArray();
 
+            // Runs a loop the same amount of times as the word length
             for (int i = 0; i < word.Length; i++)
             {
+                // Checks if the input contains any of the characters in the word and then puts that letter into the wordChacheChar
                 if (input.Contains(word[i]))
                 {
                     wordCacheChar[i] = word[i];
                 }
             }
 
+            // wordChace string gets updated with the wordChacheChar value and then returns the wordCache
             wordCache = string.Join("", wordCacheChar);
-
             return wordCache;
         }
 
@@ -218,6 +225,7 @@ namespace H1_Extra_Hangman
 
         static void Messages(string message)
         {
+            // Writes a message, which is determined, whenever this method gets called
             Console.WriteLine(message);
             Console.ReadLine();
         }
@@ -229,6 +237,7 @@ namespace H1_Extra_Hangman
         static string WordListModel()
         {
             // Points to the word list, located in ..\H1_Extra_Hangman\H1_Extra_Hangman\bin\Debug\net6.0\WordList.txt
+            // Or just in Code, on github
             string directory = Directory.GetCurrentDirectory();
             directory = Path.Combine(directory + @"\WordList.txt");
             return directory;
