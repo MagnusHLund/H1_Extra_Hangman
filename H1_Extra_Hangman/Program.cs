@@ -62,6 +62,9 @@
                     if (input.Length != 1)
                     {
                         Messages("Max 1 character!");
+
+                        // Sets input to an empty string, so it wont call View with more than 1 character inside input
+                        input = "";
                         continue;
                     }
                     // Checks if the string called "alreadySaid" has the character that the user just input. If yes, then output an error and start the loop over
